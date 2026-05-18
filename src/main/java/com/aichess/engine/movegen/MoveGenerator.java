@@ -152,20 +152,31 @@ public class MoveGenerator {
             long attacks = PrecomputedAttacks.KING_ATTACKS[from] & ~usPieces;
             addStandardMoves(list, from, attacks, themPieces);
             
-            // Castling (Pseudo-legal, not checking for attacks on path here)
-            if (us == Piece.WHITE) {
-                if ((board.castlingRights & 1) != 0 && board.pieceList[Square.F1] == Piece.EMPTY && board.pieceList[Square.G1] == Piece.EMPTY) {
-                    list.add(Move.makeMove(Square.E1, Square.G1, Move.FLAG_CASTLE_KING));
-                }
-                if ((board.castlingRights & 2) != 0 && board.pieceList[Square.D1] == Piece.EMPTY && board.pieceList[Square.C1] == Piece.EMPTY && board.pieceList[Square.B1] == Piece.EMPTY) {
-                    list.add(Move.makeMove(Square.E1, Square.C1, Move.FLAG_CASTLE_QUEEN));
-                }
-            } else {
-                if ((board.castlingRights & 4) != 0 && board.pieceList[Square.F8] == Piece.EMPTY && board.pieceList[Square.G8] == Piece.EMPTY) {
-                    list.add(Move.makeMove(Square.E8, Square.G8, Move.FLAG_CASTLE_KING));
-                }
-                if ((board.castlingRights & 8) != 0 && board.pieceList[Square.D8] == Piece.EMPTY && board.pieceList[Square.C8] == Piece.EMPTY && board.pieceList[Square.B8] == Piece.EMPTY) {
-                    list.add(Move.makeMove(Square.E8, Square.C8, Move.FLAG_CASTLE_QUEEN));
+            // Castling (Checking for path clear and squares not under attack)
+            boolean inCheck = isSquareAttacked(board, from, them);
+            if (!inCheck) {
+                if (us == Piece.WHITE) {
+                    if ((board.castlingRights & 1) != 0 && board.pieceList[Square.F1] == Piece.EMPTY && board.pieceList[Square.G1] == Piece.EMPTY) {
+                        if (!isSquareAttacked(board, Square.F1, them)) {
+                            list.add(Move.makeMove(Square.E1, Square.G1, Move.FLAG_CASTLE_KING));
+                        }
+                    }
+                    if ((board.castlingRights & 2) != 0 && board.pieceList[Square.D1] == Piece.EMPTY && board.pieceList[Square.C1] == Piece.EMPTY && board.pieceList[Square.B1] == Piece.EMPTY) {
+                        if (!isSquareAttacked(board, Square.D1, them)) {
+                            list.add(Move.makeMove(Square.E1, Square.C1, Move.FLAG_CASTLE_QUEEN));
+                        }
+                    }
+                } else {
+                    if ((board.castlingRights & 4) != 0 && board.pieceList[Square.F8] == Piece.EMPTY && board.pieceList[Square.G8] == Piece.EMPTY) {
+                        if (!isSquareAttacked(board, Square.F8, them)) {
+                            list.add(Move.makeMove(Square.E8, Square.G8, Move.FLAG_CASTLE_KING));
+                        }
+                    }
+                    if ((board.castlingRights & 8) != 0 && board.pieceList[Square.D8] == Piece.EMPTY && board.pieceList[Square.C8] == Piece.EMPTY && board.pieceList[Square.B8] == Piece.EMPTY) {
+                        if (!isSquareAttacked(board, Square.D8, them)) {
+                            list.add(Move.makeMove(Square.E8, Square.C8, Move.FLAG_CASTLE_QUEEN));
+                        }
+                    }
                 }
             }
         }

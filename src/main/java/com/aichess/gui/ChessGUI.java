@@ -146,6 +146,18 @@ public class ChessGUI extends JFrame {
                     boolean isLight = (rank + file) % 2 != 0;
                     g2.setColor(isLight ? lightColor : darkColor);
                     g2.fillRect(file * tileSize, (7 - rank) * tileSize, tileSize, tileSize);
+                    
+                    // Draw coordinates
+                    g2.setFont(new Font("SansSerif", Font.BOLD, 12));
+                    g2.setColor(isLight ? darkColor : lightColor);
+                    
+                    if (file == 0) { // Ranks (1-8) on the left edge
+                        g2.drawString(String.valueOf(rank + 1), file * tileSize + 4, (7 - rank) * tileSize + 14);
+                    }
+                    if (rank == 0) { // Files (a-h) on the bottom edge
+                        String fileChar = String.valueOf((char)('a' + file));
+                        g2.drawString(fileChar, file * tileSize + tileSize - 12, (7 - rank) * tileSize + tileSize - 4);
+                    }
                 }
             }
             
@@ -248,6 +260,10 @@ public class ChessGUI extends JFrame {
                     JOptionPane.showMessageDialog(this, "Pat! Berabere.");
                 }
             }
+        } else if (isThreefoldRepetition()) {
+            JOptionPane.showMessageDialog(this, "Berabere! 3 Konum Tekrarı (Üçlü Tekrar).");
+        } else if (board.halfMoveClock >= 100) {
+            JOptionPane.showMessageDialog(this, "Berabere! 50 Hamle Kuralı.");
         }
     }
 
@@ -289,7 +305,33 @@ public class ChessGUI extends JFrame {
     private boolean isGameOver() {
         MoveList list = new MoveList();
         MoveGenerator.generateLegalMoves(board, list);
-        return list.size() == 0;
+        return list.size() == 0 || isThreefoldRepetition() || board.halfMoveClock >= 100;
+    }
+
+    private boolean isThreefoldRepetition() {
+        if (boardHistory.isEmpty()) return false;
+        
+        Board currentBoard = boardHistory.get(boardHistory.size() - 1);
+        String currentFenStr = getPositionFen(currentBoard);
+        
+        int count = 0;
+        for (Board b : boardHistory) {
+            if (getPositionFen(b).equals(currentFenStr)) {
+                count++;
+            }
+        }
+        
+        return count >= 3;
+    }
+    
+    private String getPositionFen(Board b) {
+        String fen = b.generateFen();
+        String[] parts = fen.split(" ");
+        if (parts.length >= 4) {
+            // Pieces, side to move, castling, en passant
+            return parts[0] + " " + parts[1] + " " + parts[2] + " " + parts[3];
+        }
+        return fen;
     }
 
     private void triggerAIMove() {
