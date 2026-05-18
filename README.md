@@ -48,4 +48,4 @@ java -jar target/ai-chess-engine-1.0-SNAPSHOT-jar-with-dependencies.jar
 *   `pgn/`: `.pgn` dosyalarını okuyup motor vasıtasıyla kritik hata tespiti yapan yapı.
 
 ---
-*Geliştirici: Antigravity AI*
+*Geliştirici: MustafaBite*
